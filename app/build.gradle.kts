@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val NEWS_API_KEY: String = project.findProperty("NEWS_API_KEY") as? String ?: ""
+
 android {
     namespace = "com.example.newsapp"
     compileSdk = 35
@@ -16,6 +18,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "NEWS_API_KEY", "\"$NEWS_API_KEY\"")
     }
 
     buildTypes {
