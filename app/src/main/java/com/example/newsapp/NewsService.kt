@@ -11,20 +11,19 @@ import java.time.ZoneId
 class NewsService {
     private var client : NewsApiClient = NewsApiClient(BuildConfig.NEWS_API_KEY)
 
-    fun GetNews() {
+    fun GetNews(onResult: (List<NewsArticle>) -> Unit) {
         client.getTopHeadlines(
             TopHeadlinesRequest.Builder()
-                .q("bitcoin")
-                .language("en")
+                .country("us")
                 .build(),
             object : ArticlesResponseCallback {
                 override fun onSuccess(response: ArticleResponse) {
-                    HandleNewsResult(response)
-                    return
+                    val articles = HandleNewsResult(response)
+                    onResult(articles)
                 }
 
                 override fun onFailure(throwable: Throwable) {
-                    return
+                    println("Error: ${throwable.message}")
                 }
             }
         )
@@ -37,13 +36,13 @@ class NewsService {
         for (piece in response.articles)
         {
             var article = NewsArticle(
-                source = piece.source.name,
-                author = piece.author,
-                title = piece.title,
-                description = piece.description,
+                source = piece.source?.name ?: "Unknown Source",
+                author = piece.author  ?: "Unknown Author",
+                title = piece.title ?: "No Title",
+                description = piece.description ?: "No Description",
                 date = Instant.parse(piece.publishedAt).atZone(ZoneId.of("UTC")),
-                imageUrl = piece.urlToImage,
-                url = piece.url
+                imageUrl = piece.urlToImage ?: "",
+                url = piece.url ?: ""
             )
             listOfArticles.add(article)
         }

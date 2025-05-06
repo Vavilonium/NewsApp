@@ -7,6 +7,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.intl.Locale
@@ -35,41 +40,36 @@ data class NewsArticle(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewsListScreen(navController: NavController) {
-    val sampleArticles = listOf(
-        NewsArticle(
-            "TechCrunch", "John Doe", "AI Revolution 2025",
-            "AI is transforming industries faster than ever...",
-            ZonedDateTime.now(),
-            "https://media.geeksforgeeks.org/wp-content/uploads/geeksforgeeks-13.png",
-            "https://techcrunch.com/sample-article-1"
-        ),
-        NewsArticle(
-            "BBC News", "Jane Smith", "Global Warming Alert",
-            "New reports show alarming trends in global climate...",
-            ZonedDateTime.now(),
-            "https://media.geeksforgeeks.org/wp-content/uploads/geeksforgeeks-13.png",
-            "https://bbc.com/news/sample-article-2"
-        ),
-        NewsArticle(
-            "Reuters", "Alex Green", "Markets Rally in Spring",
-            "Markets show recovery signs after a tough winter...",
-            ZonedDateTime.now(),
-            "https://media.geeksforgeeks.org/wp-content/uploads/geeksforgeeks-13.png",
-            "https://reuters.com/markets/sample-article-3"
-        )
-    )
+    // Состояние для списка новостей
+    var newsArticles by remember { mutableStateOf<List<NewsArticle>>(emptyList()) }
+
+    // Инициализация сервиса для получения новостей
+    val newsService = NewsService()
+
+    // Загрузка новостей, когда экран компонуется
+    LaunchedEffect(true) {
+        newsService.GetNews { articles ->
+            newsArticles = articles // Обновляем состояние новостей
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("News") })
         }
     ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding)) {
-            items(sampleArticles) { article ->
-                NewsItem(article = article, onClick = {
-                    val encodedUrl = URLEncoder.encode(article.url, StandardCharsets.UTF_8.toString())
-                    navController.navigate("newsDetailScreen/$encodedUrl")
-                })
+        // Проверяем, есть ли новости для отображения
+        if (newsArticles.isEmpty()) {
+            // Если нет новостей, показываем загрузку
+            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+        } else {
+            LazyColumn(modifier = Modifier.padding(innerPadding)) {
+                items(newsArticles) { article ->
+                    NewsItem(article = article, onClick = {
+                        val encodedUrl = URLEncoder.encode(article.url, StandardCharsets.UTF_8.toString())
+                        navController.navigate("newsDetailScreen/$encodedUrl")
+                    })
+                }
             }
         }
     }

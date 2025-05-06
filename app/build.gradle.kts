@@ -1,14 +1,19 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
-val NEWS_API_KEY: String = project.findProperty("NEWS_API_KEY") as? String ?: ""
-
 android {
     namespace = "com.example.newsapp"
     compileSdk = 35
+
+    val file = rootProject.file("local.properties")
+    val properties = Properties()
+    properties.load(FileInputStream(file))
 
     defaultConfig {
         applicationId = "com.example.newsapp"
@@ -17,9 +22,9 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String",  "NEWS_API_KEY", properties.getProperty("NEWS_API_KEY"))
 
-        buildConfigField("String", "NEWS_API_KEY", "\"$NEWS_API_KEY\"")
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
