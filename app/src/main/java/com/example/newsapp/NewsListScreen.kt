@@ -9,19 +9,25 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
 
 data class NewsArticle(
     val source: String,
     val author: String,
     val title: String,
     val description: String,
-    val date: String,
+    val date: ZonedDateTime,
     val imageUrl: String,
     val url: String
 )
@@ -33,21 +39,21 @@ fun NewsListScreen(navController: NavController) {
         NewsArticle(
             "TechCrunch", "John Doe", "AI Revolution 2025",
             "AI is transforming industries faster than ever...",
-            "05/05/2025",
+            ZonedDateTime.now(),
             "https://media.geeksforgeeks.org/wp-content/uploads/geeksforgeeks-13.png",
             "https://techcrunch.com/sample-article-1"
         ),
         NewsArticle(
             "BBC News", "Jane Smith", "Global Warming Alert",
             "New reports show alarming trends in global climate...",
-            "05/04/2025",
+            ZonedDateTime.now(),
             "https://media.geeksforgeeks.org/wp-content/uploads/geeksforgeeks-13.png",
             "https://bbc.com/news/sample-article-2"
         ),
         NewsArticle(
             "Reuters", "Alex Green", "Markets Rally in Spring",
             "Markets show recovery signs after a tough winter...",
-            "05/03/2025",
+            ZonedDateTime.now(),
             "https://media.geeksforgeeks.org/wp-content/uploads/geeksforgeeks-13.png",
             "https://reuters.com/markets/sample-article-3"
         )
@@ -87,7 +93,7 @@ fun NewsItem(article: NewsArticle, onClick: () -> Unit) {
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium
             )
-            Text(text = article.date, style = MaterialTheme.typography.bodySmall)
+            Text(text = FormatDate(article.date), style = MaterialTheme.typography.bodySmall)
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -101,4 +107,11 @@ fun NewsItem(article: NewsArticle, onClick: () -> Unit) {
             )
         }
     }
+}
+
+fun FormatDate(dateTime: ZonedDateTime): String {
+    val day = dateTime.dayOfMonth.toString().padStart(2, '0')
+    val month = dateTime.monthValue.toString().padStart(2, '0')
+    val year = dateTime.year
+    return "$month/$day/$year"
 }

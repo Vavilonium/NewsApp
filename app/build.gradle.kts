@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.newsapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -63,4 +63,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("com.github.KwabenBerko:News-API-Java:1.0.2")
 }
